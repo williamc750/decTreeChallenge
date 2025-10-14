@@ -11,6 +11,8 @@ execute:
 
 # 🌳 Decision Tree Challenge - Feature Importance and Variable Encoding
 
+[📋 Jump to Discussion Questions](#discussion-questions-for-challenge)
+
 ## Challenge Overview
 
 **Your Mission:** Create a simple GitHub Pages site that demonstrates how decision trees measure feature importance and analyzes the critical differences between categorical and numerical variable encoding. You'll answer two key discussion questions by adding narrative to a pre-built analysis and posting those answers to your GitHub Pages site as a rendered HTML document.
@@ -562,13 +564,17 @@ plt.show()
 *Remember: Frequent commits are your safety net!*
 :::
 
-## Discussion Questions for Challenge
+## Discussion Questions for Challenge {#discussion-questions-for-challenge}
 
 **Your Task:** Add thoughtful narrative answers to these two questions in the Discussion Questions section of your rendered HTML site.
 
 1. **Numerical vs Categorical Encoding:** There are four models above, two in R and two in Python. For each language, the models differ by how zip code is modelled, either as a numerical variable or as a categorical variable. Given what you know about zip codes and real estate prices, how should zip code be modelled, numerically or categorically?
 
+Zip Codes should be modelled as categorical variables since zip codes represent discrete geographic areas. Normally, houses in the same zip code are similar in terms of price. Neighborhoods are usually comprised of houses with similar prices. 
+
 2. **R vs Python Implementation Differences:** When modelling zip code as a categorical variable, the output tree and feature importance differs quite significantly between R and Python. Investigate why this is the case. Which language would you say does a better job of modelling zip code as a categorical variable? Why is this the case? Do you see any documentation suggesting the other language does a better job? If so, please provide a quote from the documentation.
+
+The output tree and feature importance differs between the two languages because for python, we are creating dummy variables for each zip code. This is not the case for R, where we are converting the zip code to a factor. I would say that R does a better job of modelling zip code as a categorical variable because it gives zip code feature importance, while python does not. All dummy variables have 0 feature importance in python. In the python scikit learn documentation for decision trees, it states python can "able to handle both categorical and numerical data. However, the scikit-learn implementation in python does not support categorical variables for now." This quote demonstartes that the python language is unsuitable for using a categorical variable such as zip code to split the data. 
 
 ::: {.callout-important}
 ## 📋 Important Note on AI Usage
