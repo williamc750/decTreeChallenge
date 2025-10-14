@@ -572,9 +572,15 @@ plt.show()
 
 Zip Codes should be modelled as categorical variables since zip codes represent discrete geographic areas. Normally, houses in the same zip code are similar in terms of price. Neighborhoods are usually comprised of houses with similar prices. 
 
+Categorical variables need special treatment in decision trees because zip codes are nominal and not interval data. Decision trees splits categorical variables differently than numerical variables and requires the grouping of zip codes into similar groups.
+
 2. **R vs Python Implementation Differences:** When modelling zip code as a categorical variable, the output tree and feature importance differs quite significantly between R and Python. Investigate why this is the case. Which language would you say does a better job of modelling zip code as a categorical variable? Why is this the case? Do you see any documentation suggesting the other language does a better job? If so, please provide a quote from the documentation.
 
-The output tree and feature importance differs between the two languages because for python, we are creating dummy variables for each zip code. This is not the case for R, where we are converting the zip code to a factor. I would say that R does a better job of modelling zip code as a categorical variable because it gives zip code feature importance, while python does not. All dummy variables have 0 feature importance in python. In the python scikit learn documentation for decision trees, it states python can "able to handle both categorical and numerical data. However, the scikit-learn implementation in python does not support categorical variables for now." This quote demonstartes that the python language is unsuitable for using a categorical variable such as zip code to split the data. 
+The output tree and feature importance differs between the two languages because for python, we are creating dummy variables for each zip code. This is not the case for R, where we are converting the zip code to a factor. I would say that R does a better job of modelling zip code as a categorical variable because it gives zip code feature importance, while python does not. All dummy variables have 0 feature importance in python. 
+
+After reading the documentation, the key differences between the 2  
+
+In the python scikit learn documentation for decision trees, it states python can "able to handle both categorical and numerical data. However, the scikit-learn implementation in python does not support categorical variables for now." This quote demonstartes that the python language is unsuitable for using a categorical variable such as zip code to split the data. 
 
 ::: {.callout-important}
 ## 📋 Important Note on AI Usage
