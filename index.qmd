@@ -58,17 +58,6 @@ We are analyzing the Ames Housing dataset which contains detailed information ab
 
 ## Data Loading and Model Building
 
-::: {.callout-important}
-## 🎯 Note on Python Usage
-
-You have not been coached through setting up a Python environment.  You will need to set up a Python environment and install the necessary packages to run this code - takes about 15 minutes; see [https://quarto.org/docs/projects/virtual-environments.html](https://quarto.org/docs/projects/virtual-environments.html).  Alternatively, delete the Python code and only leave the remaining R code that is provided.  You can see the executed Python output at my GitHub pages site: [https://flyaflya.github.io/decTreeChallenge/](https://flyaflya.github.io/decTreeChallenge/).
-
-:::
-
-::: {.panel-tabset}
-
-### R
-
 ```{r}
 #| label: load-and-model-r
 #| echo: true
@@ -109,51 +98,7 @@ tree_model <- rpart(SalePrice ~ .,
 cat("Model built with", sum(tree_model$frame$var == "<leaf>"), "terminal nodes\n")
 ```
 
-### Python
-
-```{python}
-#| label: load-and-model-python
-#| echo: true
-
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeRegressor, plot_tree
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, r2_score
-import warnings
-warnings.filterwarnings('ignore')
-
-# Load data
-sales_data = pd.read_csv("https://raw.githubusercontent.com/flyaflya/buad442Fall2025/refs/heads/main/datasets/salesPriceData.csv")
-
-# Prepare model data (treating zipCode as numerical)
-model_vars = ['SalePrice', 'LotArea', 'YearBuilt', 'GrLivArea', 'FullBath', 
-              'HalfBath', 'BedroomAbvGr', 'TotRmsAbvGrd', 'GarageCars', 'zipCode']
-model_data = sales_data[model_vars].dropna()
-
-# Split data
-X = model_data.drop('SalePrice', axis=1)
-y = model_data['SalePrice']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
-
-# Build decision tree
-tree_model = DecisionTreeRegressor(max_depth=3, 
-                                  min_samples_split=20, 
-                                  min_samples_leaf=10, 
-                                  random_state=123)
-tree_model.fit(X_train, y_train)
-
-print(f"Model built with {tree_model.get_n_leaves()} terminal nodes")
-```
-
-:::
-
 ## Tree Visualization
-
-::: {.panel-tabset}
-
-### R
 
 ```{r}
 #| label: visualize-tree-r
@@ -178,34 +123,7 @@ if (require(rpart.plot, quietly = TRUE)) {
 }
 ```
 
-### Python
-
-```{python}
-#| label: visualize-tree-python
-#| echo: true
-#| fig-width: 10
-#| fig-height: 6
-
-# Visualize tree
-plt.figure(figsize=(10, 6))
-plot_tree(tree_model, 
-          feature_names=X_train.columns,
-          filled=True, 
-          rounded=True,
-          fontsize=10,
-          max_depth=3)
-plt.title("Decision Tree (zipCode as Numerical)")
-plt.tight_layout()
-plt.show()
-```
-
-:::
-
 ## Feature Importance Analysis
-
-::: {.panel-tabset}
-
-### R
 
 ```{r}
 #| label: feature-importance-r
@@ -244,44 +162,7 @@ ggplot(importance_df, aes(x = reorder(Feature, Importance), y = Importance)) +
   theme_minimal()
 ```
 
-### Python
 
-```{python}
-#| label: feature-importance-python
-#| echo: false
-
-# Extract and display feature importance
-importance_df = pd.DataFrame({
-    'Feature': X_train.columns,
-    'Importance': tree_model.feature_importances_
-}).sort_values('Importance', ascending=False)
-
-importance_df['Importance_Percent'] = (importance_df['Importance'] * 100).round(2)
-
-# Check zipCode ranking
-zipcode_rank = importance_df[importance_df['Feature'] == 'zipCode'].index[0] + 1
-zipcode_importance = importance_df[importance_df['Feature'] == 'zipCode']['Importance_Percent'].iloc[0]
-```
-
-```{python}
-#| label: importance-plot-python
-#| echo: false
-#| fig-width: 8
-#| fig-height: 5
-
-# Plot feature importance
-plt.figure(figsize=(8, 5))
-plt.barh(range(len(importance_df)), importance_df['Importance'], 
-         color='steelblue', alpha=0.7)
-plt.yticks(range(len(importance_df)), importance_df['Feature'])
-plt.xlabel('Importance Score')
-plt.title('Feature Importance (zipCode as Numerical)')
-plt.gca().invert_yaxis()
-plt.tight_layout()
-plt.show()
-```
-
-:::
 
 ## Critical Analysis: The Encoding Problem
 
@@ -305,10 +186,6 @@ Now let's repeat the analysis with zipCode properly encoded as categorical varia
 **Python Approach:** One-hot encode zipCode (create dummy variables for each zip code)
 
 ### Categorical Encoding Analysis
-
-::: {.panel-tabset}
-
-### R
 
 ```{r}
 #| label: categorical-r
@@ -350,53 +227,7 @@ if(zipcode_in_tree) {
 }
 ```
 
-### Python
-
-```{python}
-#| label: categorical-python
-#| echo: true
-#| include: false
-# One-hot encode zipCode
-import pandas as pd
-
-# Create one-hot encoded zipCode
-zipcode_encoded = pd.get_dummies(model_data['zipCode'], prefix='zipCode')
-model_data_cat = pd.concat([model_data.drop('zipCode', axis=1), zipcode_encoded], axis=1)
-
-# Split data
-X_cat = model_data_cat.drop('SalePrice', axis=1)
-y_cat = model_data_cat['SalePrice']
-X_train_cat, X_test_cat, y_train_cat, y_test_cat = train_test_split(X_cat, y_cat, test_size=0.2, random_state=123)
-
-# Build decision tree with one-hot encoded zipCode
-tree_model_cat = DecisionTreeRegressor(max_depth=3, 
-                                      min_samples_split=20, 
-                                      min_samples_leaf=10, 
-                                      random_state=123)
-tree_model_cat.fit(X_train_cat, y_train_cat)
-
-# Feature importance with one-hot encoded zipCode
-importance_cat_df = pd.DataFrame({
-    'Feature': X_train_cat.columns,
-    'Importance': tree_model_cat.feature_importances_
-}).sort_values('Importance', ascending=False)
-
-importance_cat_df['Importance_Percent'] = (importance_cat_df['Importance'] * 100).round(2)
-
-# Check zipCode features
-zipcode_features = [col for col in X_train_cat.columns if col.startswith('zipCode')]
-zipcode_importance = importance_cat_df[importance_cat_df['Feature'].isin(zipcode_features)]['Importance'].sum()
-total_importance = importance_cat_df['Importance'].sum()
-zipcode_percent = (zipcode_importance / total_importance * 100).round(2)
-```
-
-:::
-
 ### Tree Visualization: Categorical zipCode
-
-::: {.panel-tabset}
-
-### R
 
 ```{r}
 #| label: visualize-tree-cat-r
@@ -421,34 +252,7 @@ if (require(rpart.plot, quietly = TRUE)) {
 }
 ```
 
-### Python
-
-```{python}
-#| label: visualize-tree-cat-python
-#| echo: true
-#| fig-width: 10
-#| fig-height: 6
-
-# Visualize tree with one-hot encoded zipCode
-plt.figure(figsize=(10, 6))
-plot_tree(tree_model_cat, 
-          feature_names=X_train_cat.columns,
-          filled=True, 
-          rounded=True,
-          fontsize=8,
-          max_depth=4)
-plt.title("Decision Tree (zipCode One-Hot Encoded)")
-plt.tight_layout()
-plt.show()
-```
-
-:::
-
 ### Feature Importance: Categorical zipCode
-
-::: {.panel-tabset}
-
-### R
 
 ```{r}
 #| label: importance-plot-cat-r
@@ -467,28 +271,6 @@ ggplot(importance_cat, aes(x = reorder(Feature, Importance), y = Importance)) +
        x = "Features", y = "Importance Score") +
   theme_minimal()
 ```
-
-### Python
-
-```{python}
-#| label: importance-plot-cat-python
-#| echo: false
-#| fig-width: 8
-#| fig-height: 5
-
-# Plot feature importance for categorical zipCode
-plt.figure(figsize=(8, 5))
-plt.barh(range(len(importance_cat_df)), importance_cat_df['Importance'], 
-         color='darkgreen', alpha=0.7)
-plt.yticks(range(len(importance_cat_df)), importance_cat_df['Feature'])
-plt.xlabel('Importance Score')
-plt.title('Feature Importance (zipCode One-Hot Encoded)')
-plt.gca().invert_yaxis()
-plt.tight_layout()
-plt.show()
-```
-
-:::
 
 ## Challenge Requirements 📋
 
@@ -578,7 +360,7 @@ Categorical variables need special treatment in decision trees because zip codes
 
 The output tree and feature importance differs between the two languages because for python, we are creating dummy variables for each zip code. This is not the case for R, where we are converting the zip code to a factor. I would say that R does a better job of modelling zip code as a categorical variable because it gives zip code feature importance, while python does not. All dummy variables have 0 feature importance in python. 
 
-After reading the documentation, the key differences between the 2  
+After reading the documentation, the key differences between the 2 languages  
 
 In the python scikit learn documentation for decision trees, it states python can "able to handle both categorical and numerical data. However, the scikit-learn implementation in python does not support categorical variables for now." This quote demonstartes that the python language is unsuitable for using a categorical variable such as zip code to split the data. 
 
